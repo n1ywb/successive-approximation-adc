@@ -1,0 +1,321 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>VTC Computer Engineering Dept: Analog to Digital Converters</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<META content="MSHTML 6.00.2800.1106" name=GENERATOR></HEAD>
+<BODY>
+<H2 align=center>The VTC Computer Engineering Department Presents:</H2>
+<H1 align=center>Successive Approximation A-&gt;D Converters</H1>
+<P align=center>By Jeff Laughlin, <A 
+href="mailto:n1ywb@amsat.org">n1ywb@amsat.org</A></P>
+<HR>
+
+<H3 align=left>Concepts</H3>
+<UL>
+  <LI><STRONG>The successive approximation Analog to Digital 
+  Converter(ADC)</STRONG> is probably the most common ADC. It requires few 
+  parts, and is simple to operate. Also, it always takes exactly the same amount 
+  of time to calculate the result. In a nutshell, it consists of a 
+  <STRONG>comparator</STRONG>, a <STRONG>digital to analog 
+  converter(DAC</STRONG>), and a <STRONG>logic controller</STRONG>. The logic 
+  controller uses the DAC to produce a voltage, and checks the output of the 
+  comparator to see if it's over or under the unknown voltage. It then makes an 
+  adjustment, and checks again. It always takes exactly the number of steps that 
+  there are bits of resolution. IE, an 8 bit successive approximation ADC takes 
+  8 steps to perform the conversion. A 16 bit ADC takes 16 steps, and so on. To 
+  be more specific, the controller first sets the <STRONG>most significant 
+  bit(MSB)</STRONG> of the DAC. This generates a voltage that is effectively 
+  half of the maximum output voltage. It then checks the output of the 
+  comparator. If the comparator indicates that the output of the onboard DAC is 
+  greater than the unknown voltage, the controller clears the MSB. Otherwise it 
+  keeps the MSB set. Then it sets the second to most significant bit, and 
+  performs the same test. Each time that a bit is tested, the ADC gets half-way 
+  closer to the unknown voltage. In theory it will never quite get there, but in 
+  reality it gets there within our measurable margin of error. <STRONG>Once 
+  every bit on the input to the DAC has been tested, the input to the DAC 
+  becomes the output from the ADC!</STRONG> In this way, the successive 
+  approximation ADC will always arrive at the most precise and accurate sample 
+  possible in the same amount of time. 
+  <LI><STRONG>The ramp ADC: </STRONG>The older <STRONG>ramp</STRONG> type is no 
+  longer used, because it is functionally similar to the successive 
+  approximation type, but varies in the amount of time required to capture a 
+  sample. A ramp ADC slowly raises the output voltage of it's internal DAC, 
+  until the voltage reaches that of the unknown voltage, and the comparator 
+  switches, sending a signal to the controller. The input to the DAC is now the 
+  output of the ADC. Depending on the level of the unknown voltage, the amount 
+  of time it takes for the ramp to reach it can vary widely. A ramp ADC with a 
+  smarter logic controller quickly becomes a successive approximation ADC. 
+  <LI><STRONG>The flash ADC:</STRONG> The flash ADC consists of lots and lots of 
+  comparators, one for each possible output number. IE, if you have an 8 bit 
+  flash ADC, it will require 2^8=256 comparators. That may not seem too bad, 
+  given modern IC technology. But a 32 bit flash ADC would require 
+  <STRONG>2^32=4.3 BILLION comparators!</STRONG> Because of this, the cost of a 
+  flash comparator goes up exponentially with the number of comparators 
+  required, and they are rarely seen over 16 bits. Multiple flash comparators 
+  can be cascaded together, however. The great advantage of flash ADCs is that 
+  they are extremely fast, effectively real time. The only limit on their speed 
+  is the slew-rate of the comparators used to construct them. Because of this, 
+  they easily reach over 1 million samples per second. </LI></UL>
+<P><B>For the rest of this document, when I refer to an ADC, I will by default 
+be referring to a successive approximation type ADC.</B></P>
+<HR>
+
+<H3>Examples</H3>
+<P>For the sake of simplicity, I will do these examples with a 4 bit ADC, with a 
+peak scale of 15 volts.</P>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TH align=left>Step</TH>
+    <TH align=left>Unknown V</TH>
+    <TH align=left>DAC Input Bits</TH>
+    <TH align=left>DAC Output V</TH>
+    <TH align=left>comparator Output Bit</TH></TR>
+  <TR>
+    <TD>1</TD>
+    <TD>10 Volts</TD>
+    <TD>1000</TD>
+    <TD>8 Volts</TD>
+    <TD>0, so keep this bit set</TD></TR>
+  <TR>
+    <TD>2</TD>
+    <TD>10 Volts</TD>
+    <TD>1100</TD>
+    <TD>12 Volts</TD>
+    <TD>1, so clear this bit</TD></TR>
+  <TR>
+    <TD>3</TD>
+    <TD>10 Volts</TD>
+    <TD>1010</TD>
+    <TD>10 Volts</TD>
+    <TD>0, keep</TD></TR>
+  <TR>
+    <TD>4</TD>
+    <TD>10 Volts</TD>
+    <TD>1011</TD>
+    <TD>11 Volts</TD>
+    <TD>1, clear</TD></TR>
+  <TR>
+    <TD>Output</TD>
+    <TD>10 Volts</TD>
+    <TD>1010</TD>
+    <TD>10 Volts</TD>
+    <TD>Signal that the output is ready</TD></TR></TBODY></TABLE>
+<P>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TH align=left>Step</TH>
+    <TH align=left>Unknown V</TH>
+    <TH align=left>DAC Input Bits</TH>
+    <TH align=left>DAC Output V</TH>
+    <TH align=left>comparator Output Bit</TH></TR>
+  <TR>
+    <TD>1</TD>
+    <TD>13 Volts</TD>
+    <TD>1000</TD>
+    <TD>8 Volts</TD>
+    <TD>0, so keep this bit set</TD></TR>
+  <TR>
+    <TD>2</TD>
+    <TD>13 Volts</TD>
+    <TD>1100</TD>
+    <TD>12 Volts</TD>
+    <TD>0, so keep this bit</TD></TR>
+  <TR>
+    <TD>3</TD>
+    <TD>13 Volts</TD>
+    <TD>1110</TD>
+    <TD>14 Volts</TD>
+    <TD>1, so clear</TD></TR>
+  <TR>
+    <TD>4</TD>
+    <TD>13 Volts</TD>
+    <TD>1101</TD>
+    <TD>13 Volts</TD>
+    <TD>0, so keep</TD></TR>
+  <TR>
+    <TD>Output</TD>
+    <TD>13 Volts</TD>
+    <TD>1101</TD>
+    <TD>13 Volts</TD>
+    <TD>Signal that the output is ready</TD></TR></TBODY></TABLE>
+<P>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TH align=left>Step</TH>
+    <TH align=left>Unknown V</TH>
+    <TH align=left>DAC Input Bits</TH>
+    <TH align=left>DAC Output V</TH>
+    <TH align=left>comparator Output Bit</TH></TR>
+  <TR>
+    <TD>1</TD>
+    <TD>7 Volts</TD>
+    <TD>1000</TD>
+    <TD>8 Volts</TD>
+    <TD>1, clear</TD></TR>
+  <TR>
+    <TD>2</TD>
+    <TD>7 Volts</TD>
+    <TD>0100</TD>
+    <TD>4 Volts</TD>
+    <TD>0, keep</TD></TR>
+  <TR>
+    <TD>3</TD>
+    <TD>7 Volts</TD>
+    <TD>0110</TD>
+    <TD>6 Volts</TD>
+    <TD>0, keep</TD></TR>
+  <TR>
+    <TD>4</TD>
+    <TD>7 Volts</TD>
+    <TD>0111</TD>
+    <TD>7 Volts</TD>
+    <TD>0, keep</TD></TR>
+  <TR>
+    <TD>Output</TD>
+    <TD>7 Volts</TD>
+    <TD>0111</TD>
+    <TD>7 Volts</TD>
+    <TD>Signal that the output is ready</TD></TR></TBODY></TABLE>
+<P>This should give you a good idea of the process the DAC uses to arrive at an 
+output value.</P>
+<HR>
+
+<H3>Circuitry</H3>
+<P>The following schematic is an example of a minimal ADC.</P>
+<P><IMG height=484 alt="ADC Schematic" src="adc_schematic.gif" 
+width=668></P>
+<P>There is one part of this schematic that we haven't discussed, and that is 
+the <STRONG>sample &amp; hold</STRONG> circuitry. When the analog to digital 
+conversion takes place, the DAC output is compared to the voltage across the 
+S&amp;H capacitor rather than comparing the output of the DAC to the input 
+voltage directly. This isolates the DAC from the input voltage, and prevents the 
+conversion process from getting messed up if the input voltage swings widely. 
+The ADC controller signals the switch to close for a predetermined amount of 
+time to allow the cap to charge up to the input voltage. It then opens the 
+switch, and begins the ADC process. Although the cap does discharge very 
+slightly during the ADC process, it is negligible, due to the comparator's very 
+high input impedance. The 10v source is simply a reference for the DAC. In this 
+case, it's output will vary between 0 and 10 volts, thus limiting the measurable 
+input voltage range to 0 to 10 volts. By changing the reference voltage on the 
+DAC, the effective input voltage range can also be changed.</P>
+<HR>
+
+<P><STRONG>The Logic Controller</STRONG></P>
+<P>The logic controller is best described by this snippit of C code, which uses 
+a PC as the logic controller and the parallel port as the interface to the ADC 
+circuit.</P><PRE>#include &lt;conio.h&gt;
+
+#define BASEPORT    0x378
+#define DATA        BASEPORT
+#define STATUS      BASEPORT+0x1
+#define CONTROL     BASEPORT+0x2
+#define SAMPLEBIT   0x04
+#define INPUTBIT    0x08
+
+/* This function takes a delay factor for the sample process, for */
+/* the hold, and for the time between bit shifts. It performs the */
+/* logic in the ADC conversion, using the PC parallel port as an  */
+/* interface to the circuitry.                                    */
+unsigned short int ad_convert( int sample_d, int hold_d, int conv_d )
+{
+  unsigned short int d    = 0x00; /* This var stores the current test value, */
+                                  /* and eventually the final output.        */
+                                  
+  unsigned short int mask = 0x80; /* The mask stores the current test bit.   */
+                                  /* It is initialized to 1000 0000, which   */
+                                  /* sets the MSB only.                      */
+  
+  /* Set the DAC bits to 0, and set the sample bit. */
+  _outp ( BASEPORT, d );
+  _outp ( CONTROL, SAMPLEBIT );
+  
+  /* Delay while the voltage is sampled. */
+  Sleep( sample_d );
+
+  /* Clear the sample bit. */
+  _outp ( CONTROL, 0xFF ^ SAMPLEBIT );
+
+  /* Wait while the comparator slews up to the sample voltage and DAC */
+  /* output. */
+  Sleep( hold_d );
+  
+  /* Now perform the actual ADC conversion. */
+  while ( mask &gt; 0x00 ) /* When the set bit in mask is shifted off the   */
+                        /* right side, mask will be 0 and the conversion */
+                        /* will be complete.                             */
+  {
+    /* XORing d with the mask sets the current test bit in d. */
+    d ^= mask;
+    _outp ( BASEPORT, d );
+
+    /* Wait while the DAC slews, and while the comparator slews. */
+    Sleep( conv_d );
+
+    /* Check the output of the comparator. If it is 0, then the DAC      */
+    /* voltage is higher than the sample voltage, and the bit must be    */
+    /* cleared. Otherwise, leave it alone.                               */
+    if ( (INPUTBIT &amp; _inp( STATUS )) == 0 )
+    {
+      /* The tested bit is cleared by XORing d with mask again. */
+      d ^= mask;
+    }
+    
+    /* Bit shift mask once to the right. This changes the set bit to the */
+    /* next lower significance bit.                                      */
+    mask = mask &gt;&gt; 1;
+  }
+  
+  /* d now contains our final value. */
+  return d;
+}
+</PRE>
+<HR>
+
+<H3>The ADC In Action</H3>
+<P align=center><IMG src="lab_wide.jpg"></P>
+<P>One of the most infamous labs in the VTC Computer System Components and 
+Interfaces EL-203 course is the Successive Approximation ADC lab. In this lab we 
+essentially construct the circuit above, except that we use a PC and the 
+parallel port as the ADC Logic controller. Here is some media from that lab.</P>
+<P><A href="lab.jpg"><IMG 
+src="lab_small.jpg" border=0></A></P>
+<P><A href="lab.jpg">Click here to 
+see a close up of the circuit in action.</A></P>
+<P><A href="d_to_a.mpeg"><IMG 
+src="digiscope_screen.gif" border=0></A></P>
+<P><A href="d_to_a.mpeg">Click on the 
+image above to see an animation of the DAC waveform.</A> This is the output from 
+the DAC for an input voltage of about 3.8 volts. The change in the output 
+voltage as the controller sets and clears the bits is clearly visible. Because 
+the ADC is so precise, it is difficult to see them all, but you can count about 
+9 equally sized time steps in the waveform. 8 are for the conversion, and the 
+final step is for the output. You will notice that the scope is operating at a 
+timebase of 50 microseconds per division. The whole ADC process takes only 350 
+microseconds.</P>
+<P><IMG src="analyzer_screen.gif"></P>
+<P>This is the input to the DAC, which of course is also the output from the 
+ADC. CLEARLY visible are the bits as they are set and cleared. The bottom most 
+waveform, #08, is the signal to the sample &amp; hold switch. #07 is the most 
+significant bit, and #00 is the least significant bit. Notice how each bit from 
+the MSB to the LSB is set, and then some are cleared and some are not.</P>
+<P>If you are interested in the lab equipment I used, <A 
+href="digi_scope_wide.jpg">click here 
+to see the digital oscilloscope</A>, and <A 
+href="logic_analyzer_wide.jpg">click 
+here to see the logic analyzer</A>.</P>
+
+<P>Return to the <A HREF="../index.html">ECET Department page</A>.</P>
+
+<HR>
+
+<P><FONT size=2><EM>This page is copyright 2001 Jeff Laughlin</P>
+<P>I hereby give the VTC Computer Engineering Department permission to use this 
+page and the media herein as they see fit. This page and the associated media 
+may not be distributed in any form, modified or unmodified, beyond the VTC 
+Computer Engineering Department without my express permission.</P>
+<P>Comments, corrections, criticisms, rants &amp; raves &amp; flames can be 
+directed to </EM></FONT><A href="mailto:n1ywb@amsat.org"><FONT 
+size=2><EM>n1ywb@amsat.org</EM></FONT></A><FONT size=2><EM></P>
+<P>Last modified on Monday, March 20th, 2001</EM></FONT></P></BODY></HTML>
